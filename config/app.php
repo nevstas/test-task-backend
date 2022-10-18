@@ -4,6 +4,13 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
+    'gateway_megakassa_merchant_id' => env('GATEWAY_MEGAKASSA_MERCHANT_ID', false),
+    'gateway_megakassa_merchant_key' => env('GATEWAY_MEGAKASSA_MERCHANT_KEY', false),
+    'gateway_megakassa_merchant_attempts_per_day' => env('GATEWAY_MEGAKASSA_MERCHANT_ATTEMPTS_PER_DAY', false),
+    'gateway_topkassa_merchant_id' => env('GATEWAY_TOPKASSA_MERCHANT_ID', false),
+    'gateway_topkassa_merchant_key' => env('GATEWAY_TOPKASSA_MERCHANT_KEY', false),
+    'gateway_topkassa_merchant_attempts_per_day' => env('GATEWAY_TOPKASSA_MERCHANT_ATTEMPTS_PER_DAY', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
