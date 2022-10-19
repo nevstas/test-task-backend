@@ -94,7 +94,7 @@ class PaymentGatewayMegaKassa extends PaymentGateway
             'payment_id' => 'required|integer',
             'status' => 'required',
             'amount' => 'required|numeric',
-            'amount_paid' => 'required|numeric',
+//            'amount_paid' => 'required|numeric',
             'timestamp' => 'required|integer',
             'sign' => 'required',
         ];

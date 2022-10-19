@@ -105,7 +105,7 @@ class PaymentGatewayTopKassa extends PaymentGateway
             'invoice' => 'required|integer',
             'status' => 'required',
             'amount' => 'required|numeric',
-            'amount_paid' => 'required|numeric',
+//            'amount_paid' => 'required|numeric',
             'rand' => 'required',
         ];
     }
