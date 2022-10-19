@@ -163,14 +163,17 @@ abstract class PaymentGateway
     }
 
     /**
-     * Check "amount" from db equals "amount_paid" from request
+     * Check "amount" from db equals "amount_paid" from request. And field "amount_paid" isset if "status" equals "completed"
      *
      * @return void
      */
     private function checkAmount(): void
     {
-        if ($this->payment->amount != $this->request->amount_paid) {
+        if ($this->request->has('amount_paid') && ($this->payment->amount != $this->request->amount_paid)) {
             abort(response()->json(['message' => 'Wrong payment amount'], Response::HTTP_BAD_REQUEST));
+        }
+        if ($this->request->status == 'completed' && $this->request->missing('amount_paid')) {
+            abort(response()->json(['message' => 'Field "amount_paid" should be exist inside request'], Response::HTTP_BAD_REQUEST));
         }
     }
 
@@ -182,13 +185,13 @@ abstract class PaymentGateway
     private function savePayment(): void
     {
         $affected_rows = Payment::where('id', $this->payment->id)
-            ->whereNull('amount_paid')
-            ->update([
-                'status' => $this->convertStatus($this->request->status),
-                'amount_paid' => $this->request->amount_paid,
-            ]);
+            ->whereNotIn('status', ['completed', 'expired', 'rejected'])
+            ->update(array_merge(
+                ['status' => $this->convertStatus($this->request->status),],
+                $this->request->has('amount_paid') ? ['amount_paid' => $this->request->amount_paid] : []
+            ));
         if ($affected_rows != 1) {
-            abort(response()->json(['message' => 'Payment has already been made'], Response::HTTP_BAD_REQUEST));
+            abort(response()->json(['message' => 'Payment status can\'t be changed'], Response::HTTP_BAD_REQUEST));
         }
     }
 
