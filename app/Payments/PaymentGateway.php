@@ -27,6 +27,14 @@ abstract class PaymentGateway
      */
     protected Payment $payment;
 
+
+    /**
+     * Converted status from request
+     *
+     * @var string
+     */
+    protected string $convertedStatusFromRequest;
+
     /**
      * Default statuses for gateway
      *
@@ -89,6 +97,7 @@ abstract class PaymentGateway
     {
         $this->request = $request;
         $this->payment = Payment::findOrFail($this->getPaymentIdFromRequest());
+        $this->convertedStatusFromRequest = $this->convertStatus($this->request->status);
     }
 
     /**
@@ -172,7 +181,7 @@ abstract class PaymentGateway
         if ($this->request->has('amount_paid') && ($this->payment->amount != $this->request->amount_paid)) {
             abort(response()->json(['message' => 'Wrong payment amount'], Response::HTTP_BAD_REQUEST));
         }
-        if ($this->request->status == 'completed' && $this->request->missing('amount_paid')) {
+        if ($this->convertedStatusFromRequest == 'completed' && $this->request->missing('amount_paid')) {
             abort(response()->json(['message' => 'Field "amount_paid" should be exist inside request'], Response::HTTP_BAD_REQUEST));
         }
     }
@@ -187,7 +196,7 @@ abstract class PaymentGateway
         $affected_rows = Payment::where('id', $this->payment->id)
             ->whereNotIn('status', ['completed', 'expired', 'rejected'])
             ->update(array_merge(
-                ['status' => $this->convertStatus($this->request->status),],
+                ['status' => $this->convertedStatusFromRequest],
                 $this->request->has('amount_paid') ? ['amount_paid' => $this->request->amount_paid] : []
             ));
         if ($affected_rows != 1) {
