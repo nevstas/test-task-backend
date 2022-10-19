@@ -101,6 +101,7 @@ abstract class PaymentGateway
         $this->validateRequest();
         $this->checkSign();
         $this->checkMerchantID();
+        $this->checkAmount();
         $this->savePayment();
         return response()->json([
             'status' => 'ok',
@@ -118,7 +119,7 @@ abstract class PaymentGateway
         if (!isset($this->statuses[$status])) {
             abort(response()->json(['message' => 'Status not found'], Response::HTTP_BAD_REQUEST));
         }
-        return $this->statuses[$status] ?? '';
+        return $this->statuses[$status];
     }
 
     /**
@@ -158,6 +159,18 @@ abstract class PaymentGateway
     {
         if ($this->getMerchantIDFromRequest() != $this->getMerchantIDFromConfig()) {
             abort(response()->json(['message' => 'Merchant ID not found'], Response::HTTP_BAD_REQUEST));
+        }
+    }
+
+    /**
+     * Check "amount" from db equals "amount_paid" from request
+     *
+     * @return void
+     */
+    private function checkAmount(): void
+    {
+        if ($this->payment->amount != $this->request->amount_paid) {
+            abort(response()->json(['message' => 'Wrong payment amount'], Response::HTTP_BAD_REQUEST));
         }
     }
 
