@@ -181,9 +181,15 @@ abstract class PaymentGateway
      */
     private function savePayment(): void
     {
-        $this->payment->status = $this->convertStatus($this->request->status);
-        $this->payment->amount_paid = $this->request->amount_paid;
-        $this->payment->save();
+        $affected_rows = Payment::where('id', $this->payment->id)
+            ->whereNull('amount_paid')
+            ->update([
+                'status' => $this->convertStatus($this->request->status),
+                'amount_paid' => $this->request->amount_paid,
+            ]);
+        if ($affected_rows != 1) {
+            abort(response()->json(['message' => 'Payment has already been made'], Response::HTTP_BAD_REQUEST));
+        }
     }
 
     /**
